@@ -1,6 +1,39 @@
-type Todo @model {
+type Comment @model {
+  content: String!
+}
+
+type Event @model { 
   id: ID!
   name: String!
-  description: String
-  image: String
+  trigger: AWSDateTime
+  done: Boolean!
+  comments: [Comment]!
+}
+
+enum Status {
+  BLANK
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  SKIPPED
+}
+
+type Task @model {
+  id: ID!
+  name: String!
+  next: [Task]!
+  comments: [Comment]!
+  blocker: [Blocker]!
+  parents: [Grouping]!
+  status: Status!
+}
+
+union Blocker = Task | Event
+
+type Grouping @model {
+  id: ID!
+  name: String!
+  todos: [Task]!
+  children: [Grouping]!
+  parent: Grouping
 }
