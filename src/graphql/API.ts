@@ -4,17 +4,19 @@
 
 export type CreateCommentInput = {
   id?: string | null,
+  objectID: string,
   content: string,
 };
 
 export type ModelCommentConditionInput = {
+  objectID?: ModelIDInput | null,
   content?: ModelStringInput | null,
   and?: Array< ModelCommentConditionInput | null > | null,
   or?: Array< ModelCommentConditionInput | null > | null,
   not?: ModelCommentConditionInput | null,
 };
 
-export type ModelStringInput = {
+export type ModelIDInput = {
   ne?: string | null,
   eq?: string | null,
   le?: string | null,
@@ -54,7 +56,25 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
+export type ModelStringInput = {
+  ne?: string | null,
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  contains?: string | null,
+  notContains?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  size?: ModelSizeInput | null,
+};
+
 export type UpdateCommentInput = {
+  id: string,
+  objectID?: string | null,
   content?: string | null,
 };
 
@@ -85,6 +105,12 @@ export type ModelBooleanInput = {
   attributeType?: ModelAttributeTypes | null,
 };
 
+export enum BlockerType {
+  EVENT = "EVENT",
+  TASK = "TASK",
+}
+
+
 export type UpdateEventInput = {
   id: string,
   name?: string | null,
@@ -98,6 +124,7 @@ export type DeleteEventInput = {
 
 export type CreateTaskInput = {
   id?: string | null,
+  parent: string,
   name: string,
   status: Status,
 };
@@ -112,6 +139,7 @@ export enum Status {
 
 
 export type ModelTaskConditionInput = {
+  parent?: ModelIDInput | null,
   name?: ModelStringInput | null,
   status?: ModelStatusInput | null,
   and?: Array< ModelTaskConditionInput | null > | null,
@@ -126,6 +154,7 @@ export type ModelStatusInput = {
 
 export type UpdateTaskInput = {
   id: string,
+  parent?: string | null,
   name?: string | null,
   status?: Status | null,
 };
@@ -134,9 +163,41 @@ export type DeleteTaskInput = {
   id?: string | null,
 };
 
+export type CreateBlockerInput = {
+  id?: string | null,
+  task: string,
+  blockedBy: string,
+  blockedByType: BlockerType,
+};
+
+export type ModelBlockerConditionInput = {
+  task?: ModelIDInput | null,
+  blockedBy?: ModelIDInput | null,
+  blockedByType?: ModelBlockerTypeInput | null,
+  and?: Array< ModelBlockerConditionInput | null > | null,
+  or?: Array< ModelBlockerConditionInput | null > | null,
+  not?: ModelBlockerConditionInput | null,
+};
+
+export type ModelBlockerTypeInput = {
+  eq?: BlockerType | null,
+  ne?: BlockerType | null,
+};
+
+export type UpdateBlockerInput = {
+  task?: string | null,
+  blockedBy?: string | null,
+  blockedByType?: BlockerType | null,
+};
+
+export type DeleteBlockerInput = {
+  id?: string | null,
+};
+
 export type CreateGroupingInput = {
   id?: string | null,
   name: string,
+  groupingParentId?: string | null,
 };
 
 export type ModelGroupingConditionInput = {
@@ -149,6 +210,7 @@ export type ModelGroupingConditionInput = {
 export type UpdateGroupingInput = {
   id: string,
   name?: string | null,
+  groupingParentId?: string | null,
 };
 
 export type DeleteGroupingInput = {
@@ -156,6 +218,8 @@ export type DeleteGroupingInput = {
 };
 
 export type ModelCommentFilterInput = {
+  id?: ModelIDInput | null,
+  objectID?: ModelIDInput | null,
   content?: ModelStringInput | null,
   and?: Array< ModelCommentFilterInput | null > | null,
   or?: Array< ModelCommentFilterInput | null > | null,
@@ -172,24 +236,9 @@ export type ModelEventFilterInput = {
   not?: ModelEventFilterInput | null,
 };
 
-export type ModelIDInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-  size?: ModelSizeInput | null,
-};
-
 export type ModelTaskFilterInput = {
   id?: ModelIDInput | null,
+  parent?: ModelIDInput | null,
   name?: ModelStringInput | null,
   status?: ModelStatusInput | null,
   and?: Array< ModelTaskFilterInput | null > | null,
@@ -214,6 +263,7 @@ export type CreateCommentMutation = {
   createComment:  {
     __typename: "Comment",
     id: string,
+    objectID: string,
     content: string,
     createdAt: string,
     updatedAt: string,
@@ -229,6 +279,7 @@ export type UpdateCommentMutation = {
   updateComment:  {
     __typename: "Comment",
     id: string,
+    objectID: string,
     content: string,
     createdAt: string,
     updatedAt: string,
@@ -244,6 +295,7 @@ export type DeleteCommentMutation = {
   deleteComment:  {
     __typename: "Comment",
     id: string,
+    objectID: string,
     content: string,
     createdAt: string,
     updatedAt: string,
@@ -262,13 +314,31 @@ export type CreateEventMutation = {
     name: string,
     trigger: string | null,
     done: boolean,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -286,13 +356,31 @@ export type UpdateEventMutation = {
     name: string,
     trigger: string | null,
     done: boolean,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -310,13 +398,31 @@ export type DeleteEventMutation = {
     name: string,
     trigger: string | null,
     done: boolean,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -331,46 +437,76 @@ export type CreateTaskMutation = {
   createTask:  {
     __typename: "Task",
     id: string,
+    parent: string,
     name: string,
     next:  Array< {
       __typename: "Task",
       id: string,
+      parent: string,
       name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    blocker:  Array<( {
+      next:  Array< {
         __typename: "Task",
         id: string,
+        parent: string,
         name: string,
         status: Status,
         createdAt: string,
         updatedAt: string,
-      } | {
-        __typename: "Event",
-        id: string,
-        name: string,
-        trigger: string | null,
-        done: boolean,
-        createdAt: string,
-        updatedAt: string,
-      }
-    ) | null >,
-    parents:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
+      } | null > | null,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      hasBlockers:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      status: Status,
       createdAt: string,
       updatedAt: string,
-    } | null >,
+    } | null > | null,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    hasBlockers:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     status: Status,
     createdAt: string,
     updatedAt: string,
@@ -386,46 +522,76 @@ export type UpdateTaskMutation = {
   updateTask:  {
     __typename: "Task",
     id: string,
+    parent: string,
     name: string,
     next:  Array< {
       __typename: "Task",
       id: string,
+      parent: string,
       name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    blocker:  Array<( {
+      next:  Array< {
         __typename: "Task",
         id: string,
+        parent: string,
         name: string,
         status: Status,
         createdAt: string,
         updatedAt: string,
-      } | {
-        __typename: "Event",
-        id: string,
-        name: string,
-        trigger: string | null,
-        done: boolean,
-        createdAt: string,
-        updatedAt: string,
-      }
-    ) | null >,
-    parents:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
+      } | null > | null,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      hasBlockers:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      status: Status,
       createdAt: string,
       updatedAt: string,
-    } | null >,
+    } | null > | null,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    hasBlockers:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     status: Status,
     createdAt: string,
     updatedAt: string,
@@ -441,47 +607,128 @@ export type DeleteTaskMutation = {
   deleteTask:  {
     __typename: "Task",
     id: string,
+    parent: string,
     name: string,
     next:  Array< {
       __typename: "Task",
       id: string,
+      parent: string,
       name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    blocker:  Array<( {
+      next:  Array< {
         __typename: "Task",
         id: string,
+        parent: string,
         name: string,
         status: Status,
         createdAt: string,
         updatedAt: string,
-      } | {
-        __typename: "Event",
-        id: string,
-        name: string,
-        trigger: string | null,
-        done: boolean,
-        createdAt: string,
-        updatedAt: string,
-      }
-    ) | null >,
-    parents:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
+      } | null > | null,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      hasBlockers:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      status: Status,
       createdAt: string,
       updatedAt: string,
-    } | null >,
+    } | null > | null,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    hasBlockers:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     status: Status,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateBlockerMutationVariables = {
+  input: CreateBlockerInput,
+  condition?: ModelBlockerConditionInput | null,
+};
+
+export type CreateBlockerMutation = {
+  createBlocker:  {
+    __typename: "Blocker",
+    id: string,
+    task: string,
+    blockedBy: string,
+    blockedByType: BlockerType,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateBlockerMutationVariables = {
+  input: UpdateBlockerInput,
+  condition?: ModelBlockerConditionInput | null,
+};
+
+export type UpdateBlockerMutation = {
+  updateBlocker:  {
+    __typename: "Blocker",
+    id: string,
+    task: string,
+    blockedBy: string,
+    blockedByType: BlockerType,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteBlockerMutationVariables = {
+  input: DeleteBlockerInput,
+  condition?: ModelBlockerConditionInput | null,
+};
+
+export type DeleteBlockerMutation = {
+  deleteBlocker:  {
+    __typename: "Blocker",
+    id: string,
+    task: string,
+    blockedBy: string,
+    blockedByType: BlockerType,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -497,27 +744,51 @@ export type CreateGroupingMutation = {
     __typename: "Grouping",
     id: string,
     name: string,
-    todos:  Array< {
-      __typename: "Task",
-      id: string,
-      name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    children:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    tasks:  {
+      __typename: "ModelTaskConnection",
+      items:  Array< {
+        __typename: "Task",
+        id: string,
+        parent: string,
+        name: string,
+        status: Status,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     parent:  {
       __typename: "Grouping",
       id: string,
       name: string,
+      tasks:  {
+        __typename: "ModelTaskConnection",
+        nextToken: string | null,
+      } | null,
+      parent:  {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      children:  {
+        __typename: "ModelGroupingConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
+    } | null,
+    children:  {
+      __typename: "ModelGroupingConnection",
+      items:  Array< {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
     } | null,
     createdAt: string,
     updatedAt: string,
@@ -534,27 +805,51 @@ export type UpdateGroupingMutation = {
     __typename: "Grouping",
     id: string,
     name: string,
-    todos:  Array< {
-      __typename: "Task",
-      id: string,
-      name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    children:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    tasks:  {
+      __typename: "ModelTaskConnection",
+      items:  Array< {
+        __typename: "Task",
+        id: string,
+        parent: string,
+        name: string,
+        status: Status,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     parent:  {
       __typename: "Grouping",
       id: string,
       name: string,
+      tasks:  {
+        __typename: "ModelTaskConnection",
+        nextToken: string | null,
+      } | null,
+      parent:  {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      children:  {
+        __typename: "ModelGroupingConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
+    } | null,
+    children:  {
+      __typename: "ModelGroupingConnection",
+      items:  Array< {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
     } | null,
     createdAt: string,
     updatedAt: string,
@@ -571,27 +866,51 @@ export type DeleteGroupingMutation = {
     __typename: "Grouping",
     id: string,
     name: string,
-    todos:  Array< {
-      __typename: "Task",
-      id: string,
-      name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    children:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    tasks:  {
+      __typename: "ModelTaskConnection",
+      items:  Array< {
+        __typename: "Task",
+        id: string,
+        parent: string,
+        name: string,
+        status: Status,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     parent:  {
       __typename: "Grouping",
       id: string,
       name: string,
+      tasks:  {
+        __typename: "ModelTaskConnection",
+        nextToken: string | null,
+      } | null,
+      parent:  {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      children:  {
+        __typename: "ModelGroupingConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
+    } | null,
+    children:  {
+      __typename: "ModelGroupingConnection",
+      items:  Array< {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
     } | null,
     createdAt: string,
     updatedAt: string,
@@ -606,6 +925,7 @@ export type GetCommentQuery = {
   getComment:  {
     __typename: "Comment",
     id: string,
+    objectID: string,
     content: string,
     createdAt: string,
     updatedAt: string,
@@ -624,6 +944,7 @@ export type ListCommentsQuery = {
     items:  Array< {
       __typename: "Comment",
       id: string,
+      objectID: string,
       content: string,
       createdAt: string,
       updatedAt: string,
@@ -643,13 +964,31 @@ export type GetEventQuery = {
     name: string,
     trigger: string | null,
     done: boolean,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -670,6 +1009,14 @@ export type ListEventsQuery = {
       name: string,
       trigger: string | null,
       done: boolean,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null > | null,
@@ -685,46 +1032,76 @@ export type GetTaskQuery = {
   getTask:  {
     __typename: "Task",
     id: string,
+    parent: string,
     name: string,
     next:  Array< {
       __typename: "Task",
       id: string,
+      parent: string,
       name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    blocker:  Array<( {
+      next:  Array< {
         __typename: "Task",
         id: string,
+        parent: string,
         name: string,
         status: Status,
         createdAt: string,
         updatedAt: string,
-      } | {
-        __typename: "Event",
-        id: string,
-        name: string,
-        trigger: string | null,
-        done: boolean,
-        createdAt: string,
-        updatedAt: string,
-      }
-    ) | null >,
-    parents:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
+      } | null > | null,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      hasBlockers:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      status: Status,
       createdAt: string,
       updatedAt: string,
-    } | null >,
+    } | null > | null,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    hasBlockers:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     status: Status,
     createdAt: string,
     updatedAt: string,
@@ -743,7 +1120,29 @@ export type ListTasksQuery = {
     items:  Array< {
       __typename: "Task",
       id: string,
+      parent: string,
       name: string,
+      next:  Array< {
+        __typename: "Task",
+        id: string,
+        parent: string,
+        name: string,
+        status: Status,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      hasBlockers:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
       status: Status,
       createdAt: string,
       updatedAt: string,
@@ -761,27 +1160,51 @@ export type GetGroupingQuery = {
     __typename: "Grouping",
     id: string,
     name: string,
-    todos:  Array< {
-      __typename: "Task",
-      id: string,
-      name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    children:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    tasks:  {
+      __typename: "ModelTaskConnection",
+      items:  Array< {
+        __typename: "Task",
+        id: string,
+        parent: string,
+        name: string,
+        status: Status,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     parent:  {
       __typename: "Grouping",
       id: string,
       name: string,
+      tasks:  {
+        __typename: "ModelTaskConnection",
+        nextToken: string | null,
+      } | null,
+      parent:  {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      children:  {
+        __typename: "ModelGroupingConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
+    } | null,
+    children:  {
+      __typename: "ModelGroupingConnection",
+      items:  Array< {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
     } | null,
     createdAt: string,
     updatedAt: string,
@@ -801,6 +1224,21 @@ export type ListGroupingsQuery = {
       __typename: "Grouping",
       id: string,
       name: string,
+      tasks:  {
+        __typename: "ModelTaskConnection",
+        nextToken: string | null,
+      } | null,
+      parent:  {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      children:  {
+        __typename: "ModelGroupingConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
     } | null > | null,
@@ -812,6 +1250,7 @@ export type OnCreateCommentSubscription = {
   onCreateComment:  {
     __typename: "Comment",
     id: string,
+    objectID: string,
     content: string,
     createdAt: string,
     updatedAt: string,
@@ -822,6 +1261,7 @@ export type OnUpdateCommentSubscription = {
   onUpdateComment:  {
     __typename: "Comment",
     id: string,
+    objectID: string,
     content: string,
     createdAt: string,
     updatedAt: string,
@@ -832,6 +1272,7 @@ export type OnDeleteCommentSubscription = {
   onDeleteComment:  {
     __typename: "Comment",
     id: string,
+    objectID: string,
     content: string,
     createdAt: string,
     updatedAt: string,
@@ -845,13 +1286,31 @@ export type OnCreateEventSubscription = {
     name: string,
     trigger: string | null,
     done: boolean,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -864,13 +1323,31 @@ export type OnUpdateEventSubscription = {
     name: string,
     trigger: string | null,
     done: boolean,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -883,13 +1360,31 @@ export type OnDeleteEventSubscription = {
     name: string,
     trigger: string | null,
     done: boolean,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -899,46 +1394,76 @@ export type OnCreateTaskSubscription = {
   onCreateTask:  {
     __typename: "Task",
     id: string,
+    parent: string,
     name: string,
     next:  Array< {
       __typename: "Task",
       id: string,
+      parent: string,
       name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    blocker:  Array<( {
+      next:  Array< {
         __typename: "Task",
         id: string,
+        parent: string,
         name: string,
         status: Status,
         createdAt: string,
         updatedAt: string,
-      } | {
-        __typename: "Event",
-        id: string,
-        name: string,
-        trigger: string | null,
-        done: boolean,
-        createdAt: string,
-        updatedAt: string,
-      }
-    ) | null >,
-    parents:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
+      } | null > | null,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      hasBlockers:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      status: Status,
       createdAt: string,
       updatedAt: string,
-    } | null >,
+    } | null > | null,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    hasBlockers:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     status: Status,
     createdAt: string,
     updatedAt: string,
@@ -949,46 +1474,76 @@ export type OnUpdateTaskSubscription = {
   onUpdateTask:  {
     __typename: "Task",
     id: string,
+    parent: string,
     name: string,
     next:  Array< {
       __typename: "Task",
       id: string,
+      parent: string,
       name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    blocker:  Array<( {
+      next:  Array< {
         __typename: "Task",
         id: string,
+        parent: string,
         name: string,
         status: Status,
         createdAt: string,
         updatedAt: string,
-      } | {
-        __typename: "Event",
-        id: string,
-        name: string,
-        trigger: string | null,
-        done: boolean,
-        createdAt: string,
-        updatedAt: string,
-      }
-    ) | null >,
-    parents:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
+      } | null > | null,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      hasBlockers:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      status: Status,
       createdAt: string,
       updatedAt: string,
-    } | null >,
+    } | null > | null,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    hasBlockers:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     status: Status,
     createdAt: string,
     updatedAt: string,
@@ -999,47 +1554,113 @@ export type OnDeleteTaskSubscription = {
   onDeleteTask:  {
     __typename: "Task",
     id: string,
+    parent: string,
     name: string,
     next:  Array< {
       __typename: "Task",
       id: string,
+      parent: string,
       name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    comments:  Array< {
-      __typename: "Comment",
-      id: string,
-      content: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    blocker:  Array<( {
+      next:  Array< {
         __typename: "Task",
         id: string,
+        parent: string,
         name: string,
         status: Status,
         createdAt: string,
         updatedAt: string,
-      } | {
-        __typename: "Event",
-        id: string,
-        name: string,
-        trigger: string | null,
-        done: boolean,
-        createdAt: string,
-        updatedAt: string,
-      }
-    ) | null >,
-    parents:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
+      } | null > | null,
+      comments:  {
+        __typename: "ModelCommentConnection",
+        nextToken: string | null,
+      } | null,
+      hasBlockers:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      blocks:  {
+        __typename: "ModelBlockerConnection",
+        nextToken: string | null,
+      } | null,
+      status: Status,
       createdAt: string,
       updatedAt: string,
-    } | null >,
+    } | null > | null,
+    comments:  {
+      __typename: "ModelCommentConnection",
+      items:  Array< {
+        __typename: "Comment",
+        id: string,
+        objectID: string,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    hasBlockers:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
+    blocks:  {
+      __typename: "ModelBlockerConnection",
+      items:  Array< {
+        __typename: "Blocker",
+        id: string,
+        task: string,
+        blockedBy: string,
+        blockedByType: BlockerType,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     status: Status,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateBlockerSubscription = {
+  onCreateBlocker:  {
+    __typename: "Blocker",
+    id: string,
+    task: string,
+    blockedBy: string,
+    blockedByType: BlockerType,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateBlockerSubscription = {
+  onUpdateBlocker:  {
+    __typename: "Blocker",
+    id: string,
+    task: string,
+    blockedBy: string,
+    blockedByType: BlockerType,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteBlockerSubscription = {
+  onDeleteBlocker:  {
+    __typename: "Blocker",
+    id: string,
+    task: string,
+    blockedBy: string,
+    blockedByType: BlockerType,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1050,27 +1671,51 @@ export type OnCreateGroupingSubscription = {
     __typename: "Grouping",
     id: string,
     name: string,
-    todos:  Array< {
-      __typename: "Task",
-      id: string,
-      name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    children:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    tasks:  {
+      __typename: "ModelTaskConnection",
+      items:  Array< {
+        __typename: "Task",
+        id: string,
+        parent: string,
+        name: string,
+        status: Status,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     parent:  {
       __typename: "Grouping",
       id: string,
       name: string,
+      tasks:  {
+        __typename: "ModelTaskConnection",
+        nextToken: string | null,
+      } | null,
+      parent:  {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      children:  {
+        __typename: "ModelGroupingConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
+    } | null,
+    children:  {
+      __typename: "ModelGroupingConnection",
+      items:  Array< {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
     } | null,
     createdAt: string,
     updatedAt: string,
@@ -1082,27 +1727,51 @@ export type OnUpdateGroupingSubscription = {
     __typename: "Grouping",
     id: string,
     name: string,
-    todos:  Array< {
-      __typename: "Task",
-      id: string,
-      name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    children:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    tasks:  {
+      __typename: "ModelTaskConnection",
+      items:  Array< {
+        __typename: "Task",
+        id: string,
+        parent: string,
+        name: string,
+        status: Status,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     parent:  {
       __typename: "Grouping",
       id: string,
       name: string,
+      tasks:  {
+        __typename: "ModelTaskConnection",
+        nextToken: string | null,
+      } | null,
+      parent:  {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      children:  {
+        __typename: "ModelGroupingConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
+    } | null,
+    children:  {
+      __typename: "ModelGroupingConnection",
+      items:  Array< {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
     } | null,
     createdAt: string,
     updatedAt: string,
@@ -1114,27 +1783,51 @@ export type OnDeleteGroupingSubscription = {
     __typename: "Grouping",
     id: string,
     name: string,
-    todos:  Array< {
-      __typename: "Task",
-      id: string,
-      name: string,
-      status: Status,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    children:  Array< {
-      __typename: "Grouping",
-      id: string,
-      name: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
+    tasks:  {
+      __typename: "ModelTaskConnection",
+      items:  Array< {
+        __typename: "Task",
+        id: string,
+        parent: string,
+        name: string,
+        status: Status,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
+    } | null,
     parent:  {
       __typename: "Grouping",
       id: string,
       name: string,
+      tasks:  {
+        __typename: "ModelTaskConnection",
+        nextToken: string | null,
+      } | null,
+      parent:  {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      children:  {
+        __typename: "ModelGroupingConnection",
+        nextToken: string | null,
+      } | null,
       createdAt: string,
       updatedAt: string,
+    } | null,
+    children:  {
+      __typename: "ModelGroupingConnection",
+      items:  Array< {
+        __typename: "Grouping",
+        id: string,
+        name: string,
+        createdAt: string,
+        updatedAt: string,
+      } | null > | null,
+      nextToken: string | null,
     } | null,
     createdAt: string,
     updatedAt: string,

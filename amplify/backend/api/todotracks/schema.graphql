@@ -1,4 +1,7 @@
-type Comment @model {
+type Comment @model 
+  @key(name: "onObject", fields: ["objectID", "content"]) {
+  id: ID!
+  objectID: ID!  
   content: String!
 }
 
@@ -7,7 +10,8 @@ type Event @model {
   name: String!
   trigger: AWSDateTime
   done: Boolean!
-  comments: [Comment]!
+  comments: [Comment] @connection(keyName: "onObject", fields: ["id"])
+  blocks: [Blocker] @connection(keyName: "blockedBy", fields: ["id"])
 }
 
 enum Status {
@@ -18,22 +22,36 @@ enum Status {
   SKIPPED
 }
 
-type Task @model {
+type Task @model 
+  @key(name: "onGroup", fields: ["parent"]) {
   id: ID!
+  parent: ID!
   name: String!
-  next: [Task]!
-  comments: [Comment]!
-  blocker: [Blocker]!
-  parents: [Grouping]!
+  next: [Task]
+  comments: [Comment] @connection(keyName: "onObject", fields: ["id"])
+  hasBlockers: [Blocker] @connection(keyName: "task", fields: ["id"])
+  blocks: [Blocker] @connection(keyName: "blockedBy", fields: ["id"])
   status: Status!
 }
 
-union Blocker = Task | Event
+enum BlockerType {
+  EVENT
+  TASK
+}
+
+type Blocker
+  @model(queries: null)
+  @key(name: "task", fields: ["task"]) 
+  @key(name: "blockedBy", fields: ["blockedBy"]) {
+  task: ID!
+  blockedBy: ID!
+  blockedByType: BlockerType!
+}
 
 type Grouping @model {
   id: ID!
   name: String!
-  todos: [Task]!
-  children: [Grouping]!
-  parent: Grouping
+  tasks: [Task] @connection(keyName: "onGroup", fields: ["id"])
+  parent: Grouping @connection(name: "children")
+  children: [Grouping] @connection(name: "children")
 }

@@ -6,6 +6,7 @@ export const getComment = /* GraphQL */ `
   query GetComment($id: ID!) {
     getComment(id: $id) {
       id
+      objectID
       content
       createdAt
       updatedAt
@@ -21,6 +22,7 @@ export const listComments = /* GraphQL */ `
     listComments(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
+        objectID
         content
         createdAt
         updatedAt
@@ -37,10 +39,25 @@ export const getEvent = /* GraphQL */ `
       trigger
       done
       comments {
-        id
-        content
-        createdAt
-        updatedAt
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -59,6 +76,12 @@ export const listEvents = /* GraphQL */ `
         name
         trigger
         done
+        comments {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -70,42 +93,64 @@ export const getTask = /* GraphQL */ `
   query GetTask($id: ID!) {
     getTask(id: $id) {
       id
+      parent
       name
       next {
         id
+        parent
         name
-        status
-        createdAt
-        updatedAt
-      }
-      comments {
-        id
-        content
-        createdAt
-        updatedAt
-      }
-      blocker {
-        ... on Task {
+        next {
           id
+          parent
           name
           status
           createdAt
           updatedAt
         }
-        ... on Event {
+        comments {
+          nextToken
+        }
+        hasBlockers {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
+        status
+        createdAt
+        updatedAt
+      }
+      comments {
+        items {
           id
-          name
-          trigger
-          done
+          objectID
+          content
           createdAt
           updatedAt
         }
+        nextToken
       }
-      parents {
-        id
-        name
-        createdAt
-        updatedAt
+      hasBlockers {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       status
       createdAt
@@ -122,7 +167,25 @@ export const listTasks = /* GraphQL */ `
     listTasks(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
+        parent
         name
+        next {
+          id
+          parent
+          name
+          status
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        hasBlockers {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
         status
         createdAt
         updatedAt
@@ -136,24 +199,43 @@ export const getGrouping = /* GraphQL */ `
     getGrouping(id: $id) {
       id
       name
-      todos {
-        id
-        name
-        status
-        createdAt
-        updatedAt
-      }
-      children {
-        id
-        name
-        createdAt
-        updatedAt
+      tasks {
+        items {
+          id
+          parent
+          name
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       parent {
         id
         name
+        tasks {
+          nextToken
+        }
+        parent {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        children {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      children {
+        items {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -170,6 +252,18 @@ export const listGroupings = /* GraphQL */ `
       items {
         id
         name
+        tasks {
+          nextToken
+        }
+        parent {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        children {
+          nextToken
+        }
         createdAt
         updatedAt
       }

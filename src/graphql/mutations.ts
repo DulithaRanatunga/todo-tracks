@@ -9,6 +9,7 @@ export const createComment = /* GraphQL */ `
   ) {
     createComment(input: $input, condition: $condition) {
       id
+      objectID
       content
       createdAt
       updatedAt
@@ -22,6 +23,7 @@ export const updateComment = /* GraphQL */ `
   ) {
     updateComment(input: $input, condition: $condition) {
       id
+      objectID
       content
       createdAt
       updatedAt
@@ -35,6 +37,7 @@ export const deleteComment = /* GraphQL */ `
   ) {
     deleteComment(input: $input, condition: $condition) {
       id
+      objectID
       content
       createdAt
       updatedAt
@@ -52,10 +55,25 @@ export const createEvent = /* GraphQL */ `
       trigger
       done
       comments {
-        id
-        content
-        createdAt
-        updatedAt
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -73,10 +91,25 @@ export const updateEvent = /* GraphQL */ `
       trigger
       done
       comments {
-        id
-        content
-        createdAt
-        updatedAt
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -94,10 +127,25 @@ export const deleteEvent = /* GraphQL */ `
       trigger
       done
       comments {
-        id
-        content
-        createdAt
-        updatedAt
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -111,42 +159,64 @@ export const createTask = /* GraphQL */ `
   ) {
     createTask(input: $input, condition: $condition) {
       id
+      parent
       name
       next {
         id
+        parent
         name
-        status
-        createdAt
-        updatedAt
-      }
-      comments {
-        id
-        content
-        createdAt
-        updatedAt
-      }
-      blocker {
-        ... on Task {
+        next {
           id
+          parent
           name
           status
           createdAt
           updatedAt
         }
-        ... on Event {
+        comments {
+          nextToken
+        }
+        hasBlockers {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
+        status
+        createdAt
+        updatedAt
+      }
+      comments {
+        items {
           id
-          name
-          trigger
-          done
+          objectID
+          content
           createdAt
           updatedAt
         }
+        nextToken
       }
-      parents {
-        id
-        name
-        createdAt
-        updatedAt
+      hasBlockers {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       status
       createdAt
@@ -161,42 +231,64 @@ export const updateTask = /* GraphQL */ `
   ) {
     updateTask(input: $input, condition: $condition) {
       id
+      parent
       name
       next {
         id
+        parent
         name
-        status
-        createdAt
-        updatedAt
-      }
-      comments {
-        id
-        content
-        createdAt
-        updatedAt
-      }
-      blocker {
-        ... on Task {
+        next {
           id
+          parent
           name
           status
           createdAt
           updatedAt
         }
-        ... on Event {
+        comments {
+          nextToken
+        }
+        hasBlockers {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
+        status
+        createdAt
+        updatedAt
+      }
+      comments {
+        items {
           id
-          name
-          trigger
-          done
+          objectID
+          content
           createdAt
           updatedAt
         }
+        nextToken
       }
-      parents {
-        id
-        name
-        createdAt
-        updatedAt
+      hasBlockers {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       status
       createdAt
@@ -211,44 +303,111 @@ export const deleteTask = /* GraphQL */ `
   ) {
     deleteTask(input: $input, condition: $condition) {
       id
+      parent
       name
       next {
         id
+        parent
         name
-        status
-        createdAt
-        updatedAt
-      }
-      comments {
-        id
-        content
-        createdAt
-        updatedAt
-      }
-      blocker {
-        ... on Task {
+        next {
           id
+          parent
           name
           status
           createdAt
           updatedAt
         }
-        ... on Event {
-          id
-          name
-          trigger
-          done
-          createdAt
-          updatedAt
+        comments {
+          nextToken
         }
-      }
-      parents {
-        id
-        name
+        hasBlockers {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
+        status
         createdAt
         updatedAt
       }
+      comments {
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      hasBlockers {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       status
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createBlocker = /* GraphQL */ `
+  mutation CreateBlocker(
+    $input: CreateBlockerInput!
+    $condition: ModelBlockerConditionInput
+  ) {
+    createBlocker(input: $input, condition: $condition) {
+      id
+      task
+      blockedBy
+      blockedByType
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateBlocker = /* GraphQL */ `
+  mutation UpdateBlocker(
+    $input: UpdateBlockerInput!
+    $condition: ModelBlockerConditionInput
+  ) {
+    updateBlocker(input: $input, condition: $condition) {
+      id
+      task
+      blockedBy
+      blockedByType
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteBlocker = /* GraphQL */ `
+  mutation DeleteBlocker(
+    $input: DeleteBlockerInput!
+    $condition: ModelBlockerConditionInput
+  ) {
+    deleteBlocker(input: $input, condition: $condition) {
+      id
+      task
+      blockedBy
+      blockedByType
       createdAt
       updatedAt
     }
@@ -262,24 +421,43 @@ export const createGrouping = /* GraphQL */ `
     createGrouping(input: $input, condition: $condition) {
       id
       name
-      todos {
-        id
-        name
-        status
-        createdAt
-        updatedAt
-      }
-      children {
-        id
-        name
-        createdAt
-        updatedAt
+      tasks {
+        items {
+          id
+          parent
+          name
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       parent {
         id
         name
+        tasks {
+          nextToken
+        }
+        parent {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        children {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      children {
+        items {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -294,24 +472,43 @@ export const updateGrouping = /* GraphQL */ `
     updateGrouping(input: $input, condition: $condition) {
       id
       name
-      todos {
-        id
-        name
-        status
-        createdAt
-        updatedAt
-      }
-      children {
-        id
-        name
-        createdAt
-        updatedAt
+      tasks {
+        items {
+          id
+          parent
+          name
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       parent {
         id
         name
+        tasks {
+          nextToken
+        }
+        parent {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        children {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      children {
+        items {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -326,24 +523,43 @@ export const deleteGrouping = /* GraphQL */ `
     deleteGrouping(input: $input, condition: $condition) {
       id
       name
-      todos {
-        id
-        name
-        status
-        createdAt
-        updatedAt
-      }
-      children {
-        id
-        name
-        createdAt
-        updatedAt
+      tasks {
+        items {
+          id
+          parent
+          name
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       parent {
         id
         name
+        tasks {
+          nextToken
+        }
+        parent {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        children {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      children {
+        items {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt

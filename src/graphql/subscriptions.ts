@@ -6,6 +6,7 @@ export const onCreateComment = /* GraphQL */ `
   subscription OnCreateComment {
     onCreateComment {
       id
+      objectID
       content
       createdAt
       updatedAt
@@ -16,6 +17,7 @@ export const onUpdateComment = /* GraphQL */ `
   subscription OnUpdateComment {
     onUpdateComment {
       id
+      objectID
       content
       createdAt
       updatedAt
@@ -26,6 +28,7 @@ export const onDeleteComment = /* GraphQL */ `
   subscription OnDeleteComment {
     onDeleteComment {
       id
+      objectID
       content
       createdAt
       updatedAt
@@ -40,10 +43,25 @@ export const onCreateEvent = /* GraphQL */ `
       trigger
       done
       comments {
-        id
-        content
-        createdAt
-        updatedAt
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -58,10 +76,25 @@ export const onUpdateEvent = /* GraphQL */ `
       trigger
       done
       comments {
-        id
-        content
-        createdAt
-        updatedAt
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -76,10 +109,25 @@ export const onDeleteEvent = /* GraphQL */ `
       trigger
       done
       comments {
-        id
-        content
-        createdAt
-        updatedAt
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -90,42 +138,64 @@ export const onCreateTask = /* GraphQL */ `
   subscription OnCreateTask {
     onCreateTask {
       id
+      parent
       name
       next {
         id
+        parent
         name
-        status
-        createdAt
-        updatedAt
-      }
-      comments {
-        id
-        content
-        createdAt
-        updatedAt
-      }
-      blocker {
-        ... on Task {
+        next {
           id
+          parent
           name
           status
           createdAt
           updatedAt
         }
-        ... on Event {
+        comments {
+          nextToken
+        }
+        hasBlockers {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
+        status
+        createdAt
+        updatedAt
+      }
+      comments {
+        items {
           id
-          name
-          trigger
-          done
+          objectID
+          content
           createdAt
           updatedAt
         }
+        nextToken
       }
-      parents {
-        id
-        name
-        createdAt
-        updatedAt
+      hasBlockers {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       status
       createdAt
@@ -137,42 +207,64 @@ export const onUpdateTask = /* GraphQL */ `
   subscription OnUpdateTask {
     onUpdateTask {
       id
+      parent
       name
       next {
         id
+        parent
         name
-        status
-        createdAt
-        updatedAt
-      }
-      comments {
-        id
-        content
-        createdAt
-        updatedAt
-      }
-      blocker {
-        ... on Task {
+        next {
           id
+          parent
           name
           status
           createdAt
           updatedAt
         }
-        ... on Event {
+        comments {
+          nextToken
+        }
+        hasBlockers {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
+        status
+        createdAt
+        updatedAt
+      }
+      comments {
+        items {
           id
-          name
-          trigger
-          done
+          objectID
+          content
           createdAt
           updatedAt
         }
+        nextToken
       }
-      parents {
-        id
-        name
-        createdAt
-        updatedAt
+      hasBlockers {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       status
       createdAt
@@ -184,44 +276,102 @@ export const onDeleteTask = /* GraphQL */ `
   subscription OnDeleteTask {
     onDeleteTask {
       id
+      parent
       name
       next {
         id
+        parent
         name
-        status
-        createdAt
-        updatedAt
-      }
-      comments {
-        id
-        content
-        createdAt
-        updatedAt
-      }
-      blocker {
-        ... on Task {
+        next {
           id
+          parent
           name
           status
           createdAt
           updatedAt
         }
-        ... on Event {
-          id
-          name
-          trigger
-          done
-          createdAt
-          updatedAt
+        comments {
+          nextToken
         }
-      }
-      parents {
-        id
-        name
+        hasBlockers {
+          nextToken
+        }
+        blocks {
+          nextToken
+        }
+        status
         createdAt
         updatedAt
       }
+      comments {
+        items {
+          id
+          objectID
+          content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      hasBlockers {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      blocks {
+        items {
+          id
+          task
+          blockedBy
+          blockedByType
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       status
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onCreateBlocker = /* GraphQL */ `
+  subscription OnCreateBlocker {
+    onCreateBlocker {
+      id
+      task
+      blockedBy
+      blockedByType
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateBlocker = /* GraphQL */ `
+  subscription OnUpdateBlocker {
+    onUpdateBlocker {
+      id
+      task
+      blockedBy
+      blockedByType
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteBlocker = /* GraphQL */ `
+  subscription OnDeleteBlocker {
+    onDeleteBlocker {
+      id
+      task
+      blockedBy
+      blockedByType
       createdAt
       updatedAt
     }
@@ -232,24 +382,43 @@ export const onCreateGrouping = /* GraphQL */ `
     onCreateGrouping {
       id
       name
-      todos {
-        id
-        name
-        status
-        createdAt
-        updatedAt
-      }
-      children {
-        id
-        name
-        createdAt
-        updatedAt
+      tasks {
+        items {
+          id
+          parent
+          name
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       parent {
         id
         name
+        tasks {
+          nextToken
+        }
+        parent {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        children {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      children {
+        items {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -261,24 +430,43 @@ export const onUpdateGrouping = /* GraphQL */ `
     onUpdateGrouping {
       id
       name
-      todos {
-        id
-        name
-        status
-        createdAt
-        updatedAt
-      }
-      children {
-        id
-        name
-        createdAt
-        updatedAt
+      tasks {
+        items {
+          id
+          parent
+          name
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       parent {
         id
         name
+        tasks {
+          nextToken
+        }
+        parent {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        children {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      children {
+        items {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -290,24 +478,43 @@ export const onDeleteGrouping = /* GraphQL */ `
     onDeleteGrouping {
       id
       name
-      todos {
-        id
-        name
-        status
-        createdAt
-        updatedAt
-      }
-      children {
-        id
-        name
-        createdAt
-        updatedAt
+      tasks {
+        items {
+          id
+          parent
+          name
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       parent {
         id
         name
+        tasks {
+          nextToken
+        }
+        parent {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        children {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      children {
+        items {
+          id
+          name
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
