@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import './Tracks.css';
-import { Box, Grid }  from '@material-ui/core';
+import GroupingComponent from './Grouping';
+import ApiService from '../services/ApiService';
+import { Grouping } from '../graphql/APITypes';
 
-function Tracks() {
-  const [tracks, setTracks] = useState<any>([]);
+
+function TracksComponent() {
+  const [tracks, setTracks] = useState<Grouping[]>([]);
+
+  const filterGroups = function(gs: Grouping[]): Grouping[] {
+    // Only show top level groups.    
+    return gs.filter(g => !g.parent);
+  }
+
+  useEffect(() => {
+    ApiService.getGroupings().then(groups => setTracks(filterGroups(groups)));
+  }, []);
   
-  return (
-    <div>Hello Tracks</div>
+  return (    
+    <div>
+      {tracks.map((group) => <GroupingComponent key={group.id} group={group}/>)}
+    </div>
   );
 }
 
-export default Tracks;
+export default TracksComponent;

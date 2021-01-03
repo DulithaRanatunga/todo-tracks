@@ -1,20 +1,22 @@
 import './App.css';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import Header from './components/Header';
-import { Grid } from '@material-ui/core';
+import { Grid, ThemeProvider } from '@material-ui/core';
 import Footer from './components/Footer';
-import Tracks from './components/Tracks';
-
+import TracksComponent from './components/Tracks';
+import theme from './theme';
 
 function App() {   
-
-
   return (
-    <Grid container direction="column">
-      <Header /> 
-        <Tracks/>
-      <Footer />
-    </Grid>    
+    <ThemeProvider theme={theme}>
+      <Grid container direction="column">
+        <Header /> 
+        <div className="root">
+          <TracksComponent/>
+        </div>      
+        <Footer />
+      </Grid>    
+    </ThemeProvider>
   );
 }
 

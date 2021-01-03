@@ -1,6 +1,8 @@
+import './Footer.css';
+
 function Footer() { 
   return (
-    <div>Created by Dulitha Ranatunga</div>
+    <div className="footer">Created by Dulitha Ranatunga</div>
   );
 }
 
