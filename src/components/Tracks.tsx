@@ -1,37 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import './Tracks.css';
 import GroupingComponent from './Grouping';
 import ApiService from '../services/ApiService';
 import { Event, Grouping } from '../graphql/APITypes';
-import { createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import EventComponent from './Event';
 import { WatchLater } from '@material-ui/icons';
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-      flexFlow: 'row nowrap'
-    },
-    groups: {
-      flexGrow: 1
-    },    
-    eventHeader: {
-      padding: theme.spacing(1),
-      borderBottom: '1px solid #ddd',
-      display: 'flex',
-      flexFlow: 'row nowrap',
-      alignItems: 'center'
-    },
-    eventContent: {
-      padding: theme.spacing(1),
-      "& > div": {
-        marginTop: theme.spacing(1)
-      }      
-    }
-  }),
-);
-
+import useStyles from './Tracks.styles';
 
 function TracksComponent() {
   const classes = useStyles();

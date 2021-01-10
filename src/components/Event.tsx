@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { Comment, Event } from '../graphql/APITypes';
 import ApiService from '../services/ApiService';
@@ -12,20 +11,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { CommentOutlined, Done, DoneOutline, ModeCommentOutlined, PauseCircleFilled, PauseCircleOutline } from '@material-ui/icons';
 import dayjs from 'dayjs';
 import CommentsComponent from './Comments';
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      maxWidth: 345,
-    },  
-    done: {
-      marginLeft: 'auto'
-    },
-    expanded: {
-      borderBottom: '1px solid'
-    }
-  }),
-);
+import useStyles from './Event.styles';
 
 interface Props { 
     event: Event;
