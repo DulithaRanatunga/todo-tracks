@@ -1,6 +1,6 @@
 import { API } from 'aws-amplify';
 import { listGroupings, getGrouping, getTask, listEvents, getEvent } from '../graphql/queries';
-import { createGrouping } from '../graphql/mutations';
+import { createGrouping, deleteGrouping } from '../graphql/mutations';
 import { Event, Grouping, Task } from '../graphql/APITypes';
 /** 
  * I've no idea what the right way of doing this in react is. 
@@ -32,6 +32,10 @@ const performMutation = function(query: any, queryName: string, variables: any):
 }
 
 const ApiService = {
+
+    deleteGrouping: async function(group: Grouping): Promise<void> {
+        return performMutation(deleteGrouping, 'deleteGrouping', { id: group.id});
+    },
 
     /** Creates a grouping */
     createGrouping: async function(name: string, parent?: Grouping): Promise<Grouping> {

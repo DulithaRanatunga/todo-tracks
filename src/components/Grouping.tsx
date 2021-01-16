@@ -7,9 +7,11 @@ import { Grid } from '@material-ui/core';
 import TaskComponent from './Task';
 import {useStyles, Accordion, AccordionDetails, AccordionSummary} from './Grouping.styles';
 import AddGroupComponent from './AddGroup';
+import DeleteGroupComponent from './DeleteGroup';
 
 interface Props { 
     group: Grouping;
+    onDelete: (group: Grouping) => void;
 }
 
 export default function GroupingComponent(props: Props) {
@@ -32,6 +34,11 @@ export default function GroupingComponent(props: Props) {
     setGroup(Object.assign({}, group, { children: { items: children }}));
   }
 
+  const deleteChild = function(deleted: Grouping) {
+    const children: any[] = group?.children?.items || [];
+    setGroup(Object.assign({}, group, { children: { items: children.filter(g => g.id !== deleted.id) }}));  
+  }
+
   useEffect(() => {
     updateGroup();
   }, [props.group]);
@@ -45,20 +52,24 @@ export default function GroupingComponent(props: Props) {
             aria-controls="track-content"
             id="track-header"
             >
-            <Typography>{group.name}</Typography>
-            <div className={classes.addGroup} onClick={(e) => e.stopPropagation()}>
-              <AddGroupComponent parent={group} onCreate={addChild}></AddGroupComponent>
+            <div className={classes.accordianRow}>
+              <Typography variant="h5">{group.name}</Typography>
+              <div className={classes.addGroup} onClick={(e) => e.stopPropagation()}>
+                <AddGroupComponent parent={group} onCreate={addChild}></AddGroupComponent>    
+              </div>
+              <div className={classes.deleteGroup} onClick={(e) => e.stopPropagation()}>
+                <DeleteGroupComponent group={group} onDelete={() => props.onDelete(group)}></DeleteGroupComponent>    
+              </div>
             </div>
             </AccordionSummary>
             <AccordionDetails>
             {loading ? (<Typography>Loading</Typography>) :             
-              (<div>
+              (<React.Fragment>
                 {!!group.children?.items?.length &&
                   <React.Fragment>
                     <Grid container direction="column">
-                      {group.children.items.map((child) => <GroupingComponent key={child?.id} group={child as Grouping} />)}
+                      {group.children.items.map((child) => <div className={classes.child}><GroupingComponent onDelete={deleteChild} key={child?.id} group={child as Grouping} /></div>)}
                     </Grid>
-                    <hr/>
                   </React.Fragment>
                 }
                 {!!group.tasks?.items?.length &&         
@@ -70,7 +81,7 @@ export default function GroupingComponent(props: Props) {
                     </Grid>
                   </React.Fragment>
                 }
-              </div>)}
+              </React.Fragment>)}
             </AccordionDetails>
         </Accordion>      
     }

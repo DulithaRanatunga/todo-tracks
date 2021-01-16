@@ -4,6 +4,7 @@ import MuiAccordion from '@material-ui/core/Accordion';
 import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import { withStyles, createStyles, makeStyles, Theme } from "@material-ui/core";
+import globalStyles from '../styles/global.styles';
 
 export const AccordionSummary = withStyles({
   root: {
@@ -49,9 +50,23 @@ export const Accordion = withStyles({
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      ...globalStyles.flexCol
+    },
     addGroup: { 
       marginLeft: 'auto',
       marginRight: theme.spacing(2),
+    },
+    deleteGroup: {
+      marginRight: theme.spacing(2),
+    },
+    accordianRow: {
+      ...globalStyles.flexRow,
+      alignItems: 'center',
+      width: '100%'
+    },
+    child: {
+      width: '100%'
     }
   }),
 );

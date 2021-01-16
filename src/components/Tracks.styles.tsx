@@ -4,6 +4,13 @@ import globalStyles from "../styles/global.styles";
 export default makeStyles((theme: Theme) =>
   createStyles({
     root: {
+      ...globalStyles.flexCol 
+    },
+    add: {
+      maxHeight: theme.spacing(6),
+      ...globalStyles.flexRow
+    },
+    main: {
       ...globalStyles.flexRow
     },
     groups: {
