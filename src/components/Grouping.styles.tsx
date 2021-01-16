@@ -3,7 +3,7 @@
 import MuiAccordion from '@material-ui/core/Accordion';
 import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
-import { withStyles } from '@material-ui/core';
+import { withStyles, createStyles, makeStyles, Theme } from "@material-ui/core";
 
 export const AccordionSummary = withStyles({
   root: {
@@ -46,3 +46,12 @@ export const Accordion = withStyles({
     expanded: {},
   })(MuiAccordion);
 /** End Styling */
+
+export const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    addGroup: { 
+      marginLeft: 'auto',
+      marginRight: theme.spacing(2),
+    }
+  }),
+);

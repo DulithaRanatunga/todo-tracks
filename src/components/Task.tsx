@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { Task, Comment } from '../graphql/APITypes';
 import ApiService from '../services/ApiService';
@@ -13,20 +12,7 @@ import { CommentOutlined, Done, DoneOutline, ModeCommentOutlined, PauseCircleFil
 import { Status } from '../graphql/API';
 import dayjs from 'dayjs';
 import CommentsComponent from './Comments';
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      maxWidth: 345,
-    },  
-    done: {
-      marginLeft: 'auto'
-    },
-    expanded: {
-      borderBottom: '1px solid'
-    }
-  }),
-);
+import useStyles from './Task.styles';
 
 interface Props { 
     task: Task;

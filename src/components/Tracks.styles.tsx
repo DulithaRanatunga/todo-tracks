@@ -11,7 +11,7 @@ export default makeStyles((theme: Theme) =>
     },    
     eventHeader: {
       padding: theme.spacing(1),
-      borderBottom: '1px solid #ddd',
+      borderBottom: '1px solid ' + theme.palette.grey[300],
       ...globalStyles.flexRowCentered
     },
     eventContent: {
