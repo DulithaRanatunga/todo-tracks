@@ -7,7 +7,8 @@ import { Grid } from '@material-ui/core';
 import TaskComponent from './Task';
 import {useStyles, Accordion, AccordionDetails, AccordionSummary} from './Grouping.styles';
 import AddGroupComponent from './AddGroup';
-import DeleteGroupComponent from './DeleteGroup';
+import DeleteComponent from './Delete';
+import AddTaskComponent from './AddTask';
 
 interface Props { 
     group: Grouping;
@@ -34,9 +35,30 @@ export default function GroupingComponent(props: Props) {
     setGroup(Object.assign({}, group, { children: { items: children }}));
   }
 
-  const deleteChild = function(deleted: Grouping) {
+  const removeChild = function(deleted: Grouping) {
     const children: any[] = group?.children?.items || [];
     setGroup(Object.assign({}, group, { children: { items: children.filter(g => g.id !== deleted.id) }}));  
+  }
+
+  const removeTask = function(deleted: Task) {
+    const tasks: any[] = group?.tasks?.items || [];
+    setGroup(Object.assign({}, group, { tasks: { items: tasks.filter(t => t.id !== deleted.id) }}));  
+  }
+
+  const addTask = function(newTask: Task) {
+    const tasks: any[] = group?.tasks?.items || [];
+    tasks.push(newTask);
+    setGroup(Object.assign({}, group, { tasks: { items: tasks }}));
+  }
+
+  const deleteSelf = function() {    
+    if (!loading) {
+      setLoading(true);    
+      ApiService.deleteGrouping(props.group).then(() => {
+        setLoading(false);
+        props.onDelete(props.group);
+      });
+    }
   }
 
   useEffect(() => {
@@ -58,7 +80,7 @@ export default function GroupingComponent(props: Props) {
                 <AddGroupComponent parent={group} onCreate={addChild}></AddGroupComponent>    
               </div>
               <div className={classes.deleteGroup} onClick={(e) => e.stopPropagation()}>
-                <DeleteGroupComponent group={group} onDelete={() => props.onDelete(group)}></DeleteGroupComponent>    
+                <DeleteComponent label="Group" onDelete={deleteSelf}></DeleteComponent>    
               </div>
             </div>
             </AccordionSummary>
@@ -68,19 +90,20 @@ export default function GroupingComponent(props: Props) {
                 {!!group.children?.items?.length &&
                   <React.Fragment>
                     <Grid container direction="column">
-                      {group.children.items.map((child) => <div className={classes.child}><GroupingComponent onDelete={deleteChild} key={child?.id} group={child as Grouping} /></div>)}
+                      {group.children.items.map((child) => <div className={classes.child}><GroupingComponent onDelete={removeChild} key={child?.id} group={child as Grouping} /></div>)}
                     </Grid>
                   </React.Fragment>
                 }
-                {!!group.tasks?.items?.length &&         
-                  <React.Fragment>
-                    <Grid container direction="column" spacing={2}>
+                <Grid container direction="column" spacing={2}>
+                  {!!group.tasks?.items?.length &&         
+                    <React.Fragment>
                       {group.tasks.items.map((task) => {
-                        return <Grid item><TaskComponent key={task?.id} task={task as Task} /></Grid>
+                        return <Grid item><TaskComponent key={task?.id} task={task as Task} onDelete={removeTask} /></Grid>
                       })}
-                    </Grid>
                   </React.Fragment>
-                }
+                  }
+                    <AddTaskComponent parent={group} onCreate={addTask}></AddTaskComponent>
+                </Grid>
               </React.Fragment>)}
             </AccordionDetails>
         </Accordion>      

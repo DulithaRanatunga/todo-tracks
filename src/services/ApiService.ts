@@ -1,7 +1,8 @@
 import { API } from 'aws-amplify';
 import { listGroupings, getGrouping, getTask, listEvents, getEvent } from '../graphql/queries';
-import { createGrouping, deleteGrouping } from '../graphql/mutations';
+import { createTask, createGrouping, deleteGrouping, deleteTask } from '../graphql/mutations';
 import { Event, Grouping, Task } from '../graphql/APITypes';
+import { Status } from '../graphql/API';
 /** 
  * I've no idea what the right way of doing this in react is. 
  * But, the generated API code in graphql has a lot more mutations and queries
@@ -33,9 +34,19 @@ const performMutation = function(query: any, queryName: string, variables: any):
 
 const ApiService = {
 
+    createTask: async function(name: string, parent?: Grouping): Promise<Task> {
+        return performMutation(createTask, 'createTask',{ name: name, parent: parent?.id, status: Status.BLANK });
+    },
+
+    /** Hard delete.. should it be soft? */
     deleteGrouping: async function(group: Grouping): Promise<void> {
         return performMutation(deleteGrouping, 'deleteGrouping', { id: group.id});
     },
+    
+    deleteTask: async function(group: Task): Promise<void> {
+        return performMutation(deleteTask, 'deleteTask', { id: group.id});
+    },
+
 
     /** Creates a grouping */
     createGrouping: async function(name: string, parent?: Grouping): Promise<Grouping> {

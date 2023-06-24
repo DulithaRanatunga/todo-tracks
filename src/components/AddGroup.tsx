@@ -27,8 +27,6 @@ export default function AddGroupComponent(props: Props) {
         setLoading(false);
         setShowForm(false);
         props.onCreate(newGroup);
-      }).catch(fail => {
-        console.log(fail);
       });
     }
   }

@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { Grouping } from '../graphql/APITypes';
+import React from 'react';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
-import ApiService from '../services/ApiService';
 import useStyles from './AddGroup.styles';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 
 interface Props { 
-    group: Grouping;
-    onDelete: (group: Grouping) => void;
+    label?: string;
+    onDelete: () => void;
 }
 
-export default function DeleteGroupComponent(props: Props) {  
+/**
+ * Widget for deleting anything.
+ * @param props 
+ */
+export default function DeleteComponent(props: Props) {  
   const classes = useStyles();
-  const [loading, setLoading] = useState(false);
-
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -22,19 +22,13 @@ export default function DeleteGroupComponent(props: Props) {
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
-    deleteGroup();
+    setAnchorEl(null);    
   };
-  
-  const deleteGroup = function() {    
-    if (!loading) {
-      setLoading(true);    
-      ApiService.deleteGrouping(props.group).then(() => {
-        setLoading(false);
-        props.onDelete(props.group);
-      });
-    }
-  }
+
+  const handleDelete = () => {
+    props.onDelete();
+    handleClose();
+  };  
 
   return (
     <div className={classes.root}>
@@ -48,8 +42,8 @@ export default function DeleteGroupComponent(props: Props) {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleClose}>
-            Delete
+        <MenuItem onClick={handleDelete}>
+            Delete {props.label}
         </MenuItem>
       </Menu>
     </div>

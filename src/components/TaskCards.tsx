@@ -1,28 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Typography from '@material-ui/core/Typography';
 import { Task, Comment } from '../graphql/APITypes';
 import ApiService from '../services/ApiService';
-import { CardContent, TextField } from '@material-ui/core';
+import { Card, CardContent } from '@material-ui/core';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardActions from '@material-ui/core/CardActions';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
-import { CheckBoxOutlineBlankOutlined, CommentOutlined, Done, DoneOutline, ModeCommentOutlined, PauseCircleFilled, PauseCircleOutline } from '@material-ui/icons';
+import { CommentOutlined, Done, DoneOutline, ModeCommentOutlined, PauseCircleFilled, PauseCircleOutline } from '@material-ui/icons';
 import { Status } from '../graphql/API';
 import dayjs from 'dayjs';
 import CommentsComponent from './Comments';
-import useStyles from './Task.styles';
 import DeleteComponent from './Delete';
+import useStyles from './TaskCards.styles';
 
 interface Props { 
     task: Task;
     onDelete: (t: Task) => void;
 }
 
-interface TextFieldValue {
-  value: string;
-  focus?: Function;
-}
-
 enum Expanded {
-  None, Comments, Blockers
+  None, Comments, Blockers 
 }
 
 export default function TaskComponent(props: Props) {
@@ -30,15 +28,13 @@ export default function TaskComponent(props: Props) {
   const [expanded, setExpanded] = React.useState(Expanded.None);
   const [task, setTask] = useState<Task>();
   const [loading, setLoading] = useState(true);
-  const nameRef = useRef<TextFieldValue>({value: '' });
 
-  const hydrateTask = function() {
+  const updateTask = function() {
     setTask(props.task);
     setLoading(true);
     ApiService.getTask(props.task.id).then(hydratedTask => {
         setLoading(false);
         setTask(hydratedTask);
-        nameRef.current.value = hydratedTask.name;
     });
   }
 
@@ -51,16 +47,9 @@ export default function TaskComponent(props: Props) {
       });
     }
   }
-  
-  const submitOnEnter = function(ev: any) {
-    if (ev.key === 'Enter') {
-      ev.preventDefault();      
-      // UpdateTask();
-    }
-  }
 
   useEffect(() => {
-    hydrateTask();
+    updateTask();
   }, [props.task]);
 
   const handleExpandClick = (type: Expanded) => {
@@ -70,33 +59,40 @@ export default function TaskComponent(props: Props) {
   const createdDate: string = task ? dayjs(task.createdAt).format('DD/MM/YYYY') : '';
 
   return task ? (
-    <div className={classes.root}>
-      <div className={classes.row}>
-        <CheckBoxOutlineBlankOutlined></CheckBoxOutlineBlankOutlined>
-        <TextField className={classes.form} id="name" inputRef={nameRef} disabled={loading} onKeyPress={submitOnEnter}/>
+    <Card className={classes.root}>
+      <CardHeader 
+        action={
+          <DeleteComponent label="task" onDelete={deleteTask}></DeleteComponent>
+        }
+        title={task.name}
+        subheader={createdDate}
+      />
+      <CardContent>
+        <Typography variant="body2" color="textSecondary" component="p">
+          Current status:: {task?.status}
+        </Typography>
+      </CardContent>
+      <CardActions disableSpacing className={expanded !== Expanded.None ? classes.expanded : undefined}>
         <IconButton aria-label="blockers" onClick={() => handleExpandClick(Expanded.Blockers)} aria-expanded={expanded === Expanded.Blockers}>
           {task?.hasBlockers?.items?.length ? <PauseCircleOutline /> : <PauseCircleFilled />}
         </IconButton>
         <IconButton aria-label="comments" onClick={() => handleExpandClick(Expanded.Comments)} aria-expanded={expanded === Expanded.Comments}>
           {task?.comments?.items?.length ? <CommentOutlined /> : <ModeCommentOutlined />}
         </IconButton>
-        <IconButton aria-label="mark as done">
+        <IconButton aria-label="mark as done" className={classes.done}>
           {task?.status === Status.DONE ? <Done /> : <DoneOutline/> }
         </IconButton>
-        <DeleteComponent label="task" onDelete={deleteTask}></DeleteComponent>      
-      </div>
-      <div className={expanded !== Expanded.None ? classes.expanded : undefined}>
-        <Collapse in={expanded === Expanded.Blockers} timeout="auto" unmountOnExit>
-          <CardContent>
-            Blockers
-          </CardContent>
-        </Collapse>
-        <Collapse in={expanded === Expanded.Comments} timeout="auto" unmountOnExit>
-          <CardContent>
-            <CommentsComponent comments={task?.comments?.items as Comment[]} />
-          </CardContent>
-        </Collapse>
-      </div>
-    </div>
+      </CardActions>
+      <Collapse in={expanded === Expanded.Blockers} timeout="auto" unmountOnExit>
+        <CardContent>
+          Blockers
+        </CardContent>
+      </Collapse>
+      <Collapse in={expanded === Expanded.Comments} timeout="auto" unmountOnExit>
+        <CardContent>
+          <CommentsComponent comments={task?.comments?.items as Comment[]} />
+        </CardContent>
+      </Collapse>
+    </Card>
   ) : null;
 }

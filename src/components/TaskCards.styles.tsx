@@ -1,20 +1,15 @@
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
-import globalStyles from "../styles/global.styles";
 export default makeStyles((theme: Theme) =>
 
 createStyles({
   root: {
-    ...globalStyles.flexColumn,
+    maxWidth: 345,
   },  
-  row: {
-    ...globalStyles.flexRow,
-    alignItems: 'flex-end',
+  done: {
+    marginLeft: 'auto'
   },
   expanded: {
     borderBottom: '1px solid ' + theme.palette.grey[300],
-  },
-  form: {
-    marginLeft: theme.spacing(1)
   }
 }),
-); 
+);
