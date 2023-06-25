@@ -20,7 +20,7 @@ function Header() {
   
   return (
     <Grid container direction="row" justify="space-between" alignItems="center">
-      <Box m={2} component="h1">Task Tracks</Box>
+      <Box m={2} component="h1">Push Up Challenge Continued</Box>
       <Box className={classes.root}>
         {user && 
           <Box component="span" marginRight={2}>
